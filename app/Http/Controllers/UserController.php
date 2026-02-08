@@ -3,75 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
+use App\Repository\User\UserRepository;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function __construct(
+        private readonly UserRepository $userRepository,
+    )
     {
-        //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): View
+    {
+        $users = User::query()->paginate(10);
+
+        return view('users.index', compact('users'));
+    }
+
+    public function create(): View
     {
         return view('users.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(UserStoreRequest $request): RedirectResponse
+    public function store(UserStoreRequest $userStoreRequest): RedirectResponse
     {
-        $validated = $request->validated();
+        $user = $this->userRepository->store($userStoreRequest);
 
-        $newUser = new User();
-        $newUser->name = $validated['name'];
-        $newUser->email = $validated['email'];
-        $newUser->password = $validated['password'];
-        $newUser->save();
-
-        return redirect()->back()->with('success', 'User created successfully');
+        return redirect()
+            ->route('users.show', $user)
+            ->with('success', 'User created successfully');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
+    public function show(User $user): View
     {
         return view('users.show', [
             'user' => $user
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(
+        UserUpdateRequest $userUpdateRequest,
+        User              $user
+    ): RedirectResponse
     {
-        //
+        $this->userRepository->update($userUpdateRequest, $user);
+
+        return redirect()->route(
+            'users.show',
+            $user
+        )->with('success', 'User updated successfully');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(User $user): RedirectResponse
     {
-        //
-    }
+        $this->userRepository->destroy($user);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User deleted successfully');
     }
 }

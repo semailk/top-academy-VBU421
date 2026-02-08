@@ -5,7 +5,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::resource('users', UserController::class);
+Route::resource('users', UserController::class)
+->except(['edit']);
 
 //Route::prefix('users')->group(function () {
 //    Route::get('', [UserController::class, 'index'])->name('users.index');
