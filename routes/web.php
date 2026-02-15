@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::resource('users', UserController::class)
-->except(['edit']);
+->except(['edit'])->middleware('auth');
 
 //Route::prefix('users')->group(function () {
 //    Route::get('', [UserController::class, 'index'])->name('users.index');
@@ -15,3 +15,7 @@ Route::resource('users', UserController::class)
 //    Route::delete('{id}', [UserController::class, 'destroy'])->name('users.destroy');
 //    Route::patch('{id}', [UserController::class, 'update'])->name('users.update');
 //});
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

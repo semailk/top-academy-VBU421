@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UserRepository implements UserRepositoryInterface
@@ -25,6 +26,7 @@ class UserRepository implements UserRepositoryInterface
             $newUser->name = $validated['name'];
             $newUser->email = $validated['email'];
             $newUser->password = $validated['password'];
+            $newUser->slug = Str::slug($validated['name']);
             $newUser->save();
 
             if ($userStoreRequest->hasFile('avatar')) {

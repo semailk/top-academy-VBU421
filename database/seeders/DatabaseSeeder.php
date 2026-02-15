@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Phone;
+use App\Models\PhoneBrand;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,7 +17,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-         User::factory()->count(100)->create();
+        $phoneBrands = [
+            'Iphone',
+            'Nokia',
+            'Xiaomi',
+            'Sony',
+        ];
+
+        foreach ($phoneBrands as $brand) {
+            PhoneBrand::query()->firstOrCreate([
+                'name' => $brand,
+            ], [
+                'name' => $brand,
+            ]);
+        }
+
+        User::factory()
+            ->has(Phone::factory()->count(3), 'phones')
+            ->count(100)->create();
 
 //        User::factory()->create([
 //            'name' => 'Test User',

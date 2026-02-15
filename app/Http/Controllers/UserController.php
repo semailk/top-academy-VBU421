@@ -6,23 +6,43 @@ use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use App\Repository\User\UserRepository;
+use App\Services\FilterService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    private const PER_PAGE = 10;
 
     public function __construct(
         private readonly UserRepository $userRepository,
+        private readonly FilterService  $filterService
     )
     {
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::query()->paginate(10);
+        $query = User::query()
+            ->select([
+                'id',
+                'name',
+                'email',
+                'active',
+                'slug',
+                'created_at',
+            ])
+            ->with(
+                'phones:id,user_id,number,phone_brand_id',
+                'phones.phoneBrand:id,name'
+            );
 
-        return view('users.index', compact('users'));
+        return view('users.index', [
+            'users' => $this->filterService->scopeApply($query, $request)
+                ->paginate(100)
+                ->withQueryString(),
+        ]);
     }
 
     public function create(): View
