@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Models\Setting;
 use App\Models\User;
 use App\Repository\User\UserRepository;
 use App\Services\FilterService;
@@ -38,10 +39,13 @@ class UserController extends Controller
                 'phones.phoneBrand:id,name'
             );
 
+        $setting = Setting::query()->find(3);
+
         return view('users.index', [
             'users' => $this->filterService->scopeApply($query, $request)
                 ->paginate(100)
                 ->withQueryString(),
+            'setting' => $setting,
         ]);
     }
 
